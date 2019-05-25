@@ -1,7 +1,13 @@
 package com.example.dojo.mapapp06;
 
+import android.content.Context;
+import android.icu.text.StringSearch;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -9,6 +15,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -39,8 +49,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        LatLng japan=new LatLng(40.6080361, 140.463806);
+        mMap.addMarker(new MarkerOptions().position(japan).title("正解!!"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(japan));
+
+        //経度を指定して住所を表示
+        String result = getAddress(this, 40, 140);
+        Log.d("QQEQ", result);
+
+        //ロングタップした場所の住所を表示
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                String result = getAddress(MapsActivity.this, latLng.latitude, latLng.longitude);
+                Toast.makeText(MapsActivity.this, " " + result, Toast.LENGTH_SHORT).show();
+                Log.d("QQEQ", result);
+            }
+        });
     }
+    //緯度経度から住所を取得するメソッド
+    private String getAddress(Context con,double lat,double lng){
+        Geocoder geo=new Geocoder(con,Locale.getDefault());
+        List<Address> adds;
+
+        try {
+            adds=geo.getFromLocation(lat,lng,1);
+        }
+        catch (IOException e){
+            return "";
+        }
+
+        Log.d("QQEQ",adds.toString());
+
+        return adds.get(0).getAdminArea();
+    }
+
+
 }
+
